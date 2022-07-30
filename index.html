@@ -1,0 +1,33 @@
+<html>
+  <head>
+    <title>Recite</title>
+    <style>
+      body {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+      button {
+        padding: 10px;
+        background-color: #3C79F8;
+        border-radius: 2px;
+        outline: none;
+        color: #fff;
+        border-width: 0px;
+        display: inline-block;
+        margin-top: 15px;
+      }
+      .example-quote {
+        margin-top: 15px;
+      }
+    </style>
+     <script type="module" src="quotes.js"></script>
+    <script type="module" src="oauth.js"></script>
+  </head>
+  <body>
+    <button class="sync-button">Sync with Google Sheets</button>
+    <div class="sheet-config"></div>
+    <button class="test-quote">Get a quote</button>
+    <div class="example-quote"><i>Load a quote from your google sheets page here.</i></div>
+  </body>
+  
+</html>
