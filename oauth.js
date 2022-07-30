@@ -1,7 +1,8 @@
 import { getQuote } from "./quotes.js";
-import {GOOGLE_API_KEY} from './secrets.js';
+import { GOOGLE_API_KEY } from "./secrets.js";
 
-let sheetsId, rowCount = 0;
+let sheetsId,
+  rowCount = 0;
 
 const syncGoogleSheets = function () {
   chrome.identity.getAuthToken({ interactive: true }, function (token) {
@@ -23,7 +24,11 @@ const syncGoogleSheets = function () {
       .then((response) => response.json())
       .then(function (data) {
         console.log(data);
-        const { sheets } = data;
+        const {
+          sheets,
+          spreadsheetUrl,
+          properties: { title },
+        } = data;
         if (sheets != null && sheets.length > 0) {
           const {
             properties: { gridProperties },
@@ -36,6 +41,8 @@ const syncGoogleSheets = function () {
                 id: sheetsId,
                 "row-count": rowCount,
                 "column-count": columnCount,
+                url: spreadsheetUrl,
+                title,
               },
             },
             function () {}
@@ -82,12 +89,19 @@ chrome.storage.sync.get("sheets-config", function (result) {
   if (result["sheets-config"]) {
     const config = result["sheets-config"];
     if (config) {
+      const title = config["title"];
+      const url = config["url"];
       sheetsId = config["id"];
       rowCount = config["row-count"];
       const columnCount = config["column-count"];
+
+      let sheetsHeader = "";
+      if (title && url) {
+        sheetsHeader = `<p><a href=${url}>${title}</a></p>`;
+      }
       document.querySelector(
         ".sheet-config"
-      ).innerHTML = `<p>Google Sheet ID: ${sheetsId}</p><p>Row count: ${rowCount}</p><p>Column count: ${columnCount}</p>`;
+      ).innerHTML = `${sheetsHeader}<p>Google Sheet ID: ${sheetsId}</p><p>Row count: ${rowCount}</p><p>Column count: ${columnCount}</p>`;
     }
   }
 });
