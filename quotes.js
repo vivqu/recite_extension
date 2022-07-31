@@ -1,3 +1,5 @@
+import { GOOGLE_API_KEY } from "./secrets.js";
+
 function getQuote(sheetsId, token, rowCount) {
   return new Promise((resolve, reject) => {
     if (rowCount === 0 || token == null) {
@@ -6,7 +8,7 @@ function getQuote(sheetsId, token, rowCount) {
     }
     const validRows = rowCount - 1;
     // Exclue A1:C1 which is the index row
-    const randomIndex = Math.floor(Math.random() * validRows) + 2; 
+    const randomIndex = Math.floor(Math.random() * validRows) + 2;
     const range = `A${randomIndex}:C${randomIndex}`;
     console.log("Fetching range: ", range);
     let init = {
@@ -20,7 +22,7 @@ function getQuote(sheetsId, token, rowCount) {
       contentType: "json",
     };
     fetch(
-      `https://sheets.googleapis.com/v4/spreadsheets/${sheetsId}/values/${range}?key=AIzaSyAasZfvwSgB4g_Lp74ARYxyTVpjSPCAi7g`,
+      `https://sheets.googleapis.com/v4/spreadsheets/${sheetsId}/values/${range}?key=${GOOGLE_API_KEY}`,
       init
     )
       .then((response) => response.json())
@@ -28,4 +30,4 @@ function getQuote(sheetsId, token, rowCount) {
   });
 }
 
-export {getQuote};
+export { getQuote };
