@@ -11,7 +11,6 @@ chrome.storage.sync.get("sheets-config", function (result) {
       }
       chrome.identity.getAuthToken({ interactive: true }, function (token) {
         getQuote(sheetsId, token, rowCount).then((data) => {
-          console.log(data);
           const { values } = data;
           const quoteContext = values[0];
           const formattedQuote = quoteContext[0];
