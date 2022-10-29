@@ -45,6 +45,9 @@ const setSpreadsheetConfigDisplay = (config) => {
   const rowCount = _.get(config, "row-count", 0);
   const columnCount = _.get(config, "column-count", 0);
   let configDisplayHTML = "";
+  if (_.get(config, "sheet-title")) {
+    configDisplayHTML += `<p>Sheet title: ${config["sheet-title"]}</p>`;
+  }
   configDisplayHTML += `<p>Number of rows: ${rowCount}</p>`;
   configDisplayHTML += `<p>Number of columns: ${columnCount}</p>`;
   document.querySelector(".sheet-config").innerHTML = configDisplayHTML;
@@ -92,7 +95,7 @@ const handleSpreadsheetFormSubmit = () => {
       }
     );
   } else {
-    // Error invalid spreadsheet
+    // TODO: Error invalid spreadsheet
   }
 };
 

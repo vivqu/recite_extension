@@ -37,19 +37,17 @@ export const syncGoogleSheets = async (spreadsheetId) => {
     const response = await fetchSpreadsheetData(spreadsheetId, token);
     const data = await response.json();
     console.log(data);
-    const {
-      sheets,
-      spreadsheetUrl,
-      properties: { title },
-    } = data;
+    const { sheets, spreadsheetUrl, properties } = data;
+    const spreadsheetTitle = _.get(properties, "title", "");
     if (sheets == null || sheets.length == 0) {
       console.log("Not a valid spreadsheet ID or no rows to display");
       return null;
     }
 
     const {
-      properties: { gridProperties },
+      properties: { title, gridProperties },
     } = sheets[0];
+    const sheetTitle = title || "";
     const { rowCount, columnCount } = gridProperties;
     console.log("Grid properties: ", gridProperties);
     return {
@@ -57,7 +55,8 @@ export const syncGoogleSheets = async (spreadsheetId) => {
       "row-count": rowCount,
       "column-count": columnCount,
       url: spreadsheetUrl,
-      title,
+      title: spreadsheetTitle,
+      "sheet-title": sheetTitle,
     };
   } catch (err) {
     console.log(err);
