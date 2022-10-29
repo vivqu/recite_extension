@@ -1,9 +1,6 @@
 import { getQuote } from "./quotes.js";
 import { GOOGLE_API_KEY } from "./secrets.js";
 
-let sheetsId,
-  rowCount = 0;
-
 const syncGoogleSheets = function (spreadsheetId) {
   chrome.identity.getAuthToken({ interactive: true }, function (token) {
     let init = {
@@ -57,12 +54,19 @@ const syncGoogleSheets = function (spreadsheetId) {
   });
 };
 
-const loadExampleQuote = function () {
+const loadExampleQuote = async function () {
   // Fetch random quote
-  if (sheetsId == null || rowCount === 0) {
-    console.log("No google sheets ID synced or rows available");
+  const result = await chrome.storage.sync.get("sheets-config");
+  if (_.get(result, "sheets-config.id") == null) {
+    console.log("No google sheets ID synced");
+    return;
+  } else if (_.get(result, "sheets-config.row-count", 0) === 0) {
+    const sheetsId = result["sheets-config"]["id"];
+    console.log(`No rows available in google sheet: ${sheetsId}`);
     return;
   }
+  const sheetsId = result["sheets-config"]["id"];
+  const rowCount = result["sheets-config"]["row-count"];
   chrome.identity.getAuthToken({ interactive: true }, function (token) {
     getQuote(sheetsId, token, rowCount).then((data) => {
       console.log(data);
@@ -99,18 +103,12 @@ const setSpreadsheetConfigDisplay = (config) => {
     return;
   }
   // Display info about the sheets if it has been fetched.
-  const title = _.get(config, "title");
-  const sheetsId = _.get(config, "id");
-  const rowCount = _.get(config, "row-count");
-  const columnCount = _.get(config, "column-count");
-  const spreadsheetURL = _.get(config, "url");
-  let sheetsHeader = "";
-  if (title) {
-    sheetsHeader = `<p><a href=${spreadsheetURL}>${title}</a></p>`;
-  }
-  document.querySelector(
-    ".sheet-config"
-  ).innerHTML = `${sheetsHeader}<p>Google Sheet ID: ${sheetsId}</p><p>Number of quotes: ${rowCount}</p><p>Number of columns: ${columnCount}</p>`;
+  const rowCount = _.get(config, "row-count", 0);
+  const columnCount = _.get(config, "column-count", 0);
+  let configDisplayHTML = "";
+  configDisplayHTML += `<p>Number of rows: ${rowCount}</p>`;
+  configDisplayHTML += `<p>Number of columns: ${columnCount}</p>`;
+  document.querySelector(".sheet-config").innerHTML = configDisplayHTML;
 };
 
 const clearSource = () => {
@@ -171,7 +169,6 @@ window.onload = function () {
 };
 
 chrome.storage.sync.get(["sheets-data", "sheets-config"], function (result) {
-  console.log(result);
   const spreadsheetId = _.get(result, "sheets-data.id");
   const spreadsheetURL = _.get(result, "sheets-data.url");
   if (!spreadsheetId) {
