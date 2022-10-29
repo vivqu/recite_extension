@@ -1,37 +1,8 @@
-import { getQuote } from "./quotes.js";
-import { syncGoogleSheets, getAuthToken } from "./oauth.js";
-
-const getSpreadsheetConfig = async () => {
-  try {
-    const result = await chrome.storage.sync.get("sheets-config");
-    if (_.get(result, "sheets-config.id") == null) {
-      console.log("No google sheets ID synced");
-      return;
-    }
-    const sheetsId = result["sheets-config"]["id"];
-    const rowCount = result["sheets-config"]["row-count"];
-    return { sheetsId, rowCount };
-  } catch (e) {
-    console.log(e);
-    return null;
-  }
-};
+import { getQuote, getSpreadsheetConfig } from "./quotes.js";
+import { syncGoogleSheets } from "./oauth.js";
 
 const loadExampleQuote = async () => {
-  // Fetch random quote
-  const config = await getSpreadsheetConfig();
-  if (_.get(config, "rowCount", 0) === 0) {
-    const sheetsId = _.get(config, "sheetsId");
-    console.log(
-      sheetsId
-        ? `No rows available in google sheet: ${sheetsId}`
-        : "No rows available"
-    );
-    return;
-  }
-  const { sheetsId, rowCount } = config;
-  const token = await getAuthToken();
-  const data = await getQuote(sheetsId, token, rowCount);
+  const data = await getQuote();
 
   const { values } = data;
   const quoteContext = values[0];

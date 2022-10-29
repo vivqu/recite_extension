@@ -71,38 +71,24 @@ const renderQuote = (dict) => {
   document.querySelector(".attr-text").innerHTML = attribution;
 };
 
-const loadQuotes = (config) => {
-  if (config == null) {
-    return;
+const loadQuote = async () => {
+  try {
+    const data = await getQuote();
+    const { values } = data;
+    const quoteContext = values[0];
+    const quoteDict = {
+      text: quoteContext[0],
+      source: quoteContext[1],
+      author: quoteContext[2],
+    };
+    renderQuote(quoteDict);
+  } catch (e) {
+    // Render default set of quotes if no saved configuration
+    // is available.
+    console.log(e);
+    const index = _.random(0, DEFAULT_QUOTES.length - 1);
+    renderQuote(DEFAULT_QUOTES[index]);
   }
-  const sheetsId = config["id"];
-  const rowCount = config["row-count"];
-  if (sheetsId == null || rowCount === 0) {
-    return;
-  }
-  chrome.identity.getAuthToken({ interactive: true }, function (token) {
-    getQuote(sheetsId, token, rowCount).then((data) => {
-      const { values } = data;
-      const quoteContext = values[0];
-      const quoteDict = {
-        text: quoteContext[0],
-        source: quoteContext[1],
-        author: quoteContext[2],
-      };
-      renderQuote(quoteDict);
-    });
-  });
 };
 
-chrome.storage.sync.get("sheets-config", function (result) {
-  if (result["sheets-config"]) {
-    const config = result["sheets-config"];
-    if (config) {
-      loadQuotes(config);
-      return;
-    }
-  }
-  // Render default set of quotes
-  const index = _.random(0, DEFAULT_QUOTES.length - 1);
-  renderQuote(DEFAULT_QUOTES[index]);
-});
+loadQuote();

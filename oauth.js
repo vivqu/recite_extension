@@ -5,7 +5,7 @@ export const getAuthToken = async () => {
   return result.token;
 };
 
-const fetchSpreadsheetData = async (spreadsheetId, token) => {
+export const fetchSpreadsheetData = async (spreadsheetId, token) => {
   const init = {
     method: "GET",
     async: true,
@@ -61,6 +61,32 @@ export const syncGoogleSheets = async (spreadsheetId) => {
     };
   } catch (err) {
     console.log(err);
+    return null;
+  }
+};
+
+export const fetchQuote = async (sheetsId, range) => {
+  const token = await getAuthToken();
+  console.log("Fetching range: ", range);
+  const init = {
+    method: "GET",
+    async: true,
+    headers: {
+      Authorization: "Bearer " + token,
+      "Content-Type": "application/json",
+    },
+    mode: "cors",
+    contentType: "json",
+  };
+  try {
+    const response = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${sheetsId}/values/${range}?key=${GOOGLE_API_KEY}`,
+      init
+    );
+    const data = await response.json();
+    return data;
+  } catch (e) {
+    console.log(e);
     return null;
   }
 };
