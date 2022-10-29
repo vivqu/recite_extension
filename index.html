@@ -23,8 +23,7 @@
       }
     </style>
     <script type="module" src="lodash.js"></script>
-    <script type="module" src="quotes.js"></script>
-    <script type="module" src="oauth.js"></script>
+    <script type="module" src="settings.js"></script>
   </head>
   <body>
     <h1>Recite</h1>
@@ -39,11 +38,23 @@
         </form>
       </div>
       <div class="saved-spreadsheet-section" style="display: none">
+        <div>
         <p>Quotes will be fetched from the following spreadsheet:</p>
         <a id="spreadsheet-link"></a>
         <button class="clear-source">Clear</button>
       </div>
-    
+      <div>
+        <p>Configure columns to display:</p>
+        <div id="spreadsheet-column-settings">
+          <p>Text</p>
+          <select>
+            <option value="quote">Quote</option>
+            <option value="author">Author</option>
+            <option value="source">Source</option>
+          </select>
+        </div>
+      </div>
+      </div>
     </div>
     <div style="margin-top: 30px"></div>
     <button style="margin-top: 15px;" class="sync-button">Sync with Google Sheets</button>
