@@ -21,6 +21,13 @@
       .example-quote {
         margin-top: 15px;
       }
+      .settings-row {
+        display: flex;
+        flex-direction: row;
+      }
+      .settings-row-title {
+        margin-right: 8px;
+      }
     </style>
     <script type="module" src="lodash.js"></script>
     <script type="module" src="settings.js"></script>
@@ -43,16 +50,13 @@
         <a id="spreadsheet-link"></a>
         <button class="clear-source">Clear</button>
       </div>
-      <div>
-        <p>Configure columns to display:</p>
-        <div id="spreadsheet-column-settings">
-          <p>Text</p>
-          <select>
-            <option value="quote">Quote</option>
-            <option value="author">Author</option>
-            <option value="source">Source</option>
-          </select>
+      <div class="spreadsheet-column-settings" style="margin-top: 16px; display: none;">
+        <div class="settings-row">
+          <p>Configure columns to display:</p>
+          <button class="edit-columns">Edit</button>
+          <button class="save-columns" style="display: none;">Save</button>
         </div>
+        <div id="column-settings"></div>
       </div>
       </div>
     </div>

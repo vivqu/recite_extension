@@ -1,5 +1,12 @@
 import { GOOGLE_API_KEY } from "./secrets.js";
 
+const GET_HEADER = {
+  method: "GET",
+  async: true,
+  mode: "cors",
+  contentType: "json",
+};
+
 export const getAuthToken = async () => {
   const result = await chrome.identity.getAuthToken({ interactive: true });
   return result.token;
@@ -7,14 +14,11 @@ export const getAuthToken = async () => {
 
 export const fetchSpreadsheetData = async (spreadsheetId, token) => {
   const init = {
-    method: "GET",
-    async: true,
+    ...GET_HEADER,
     headers: {
       Authorization: "Bearer " + token,
       "Content-Type": "application/json",
     },
-    mode: "cors",
-    contentType: "json",
   };
   try {
     const response = await fetch(
@@ -22,6 +26,33 @@ export const fetchSpreadsheetData = async (spreadsheetId, token) => {
       init
     );
     return response;
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+};
+
+export const fetchColumnHeaders = async (spreadsheetId, columnCount) => {
+  const token = await getAuthToken();
+  const endColumn =
+    columnCount > 26 ? "Z" : (columnCount + 9).toString(36).toUpperCase();
+  const range = `A1:${endColumn}1`;
+  console.log("------ fetching column headers");
+  console.log("Headers range: ", range);
+  const init = {
+    ...GET_HEADER,
+    headers: {
+      Authorization: "Bearer " + token,
+      "Content-Type": "application/json",
+    },
+  };
+  try {
+    const response = await fetch(
+      `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${GOOGLE_API_KEY}`,
+      init
+    );
+    const data = await response.json();
+    return _.get(data, "values[0]", []);
   } catch (e) {
     console.log(e);
     return null;
@@ -36,6 +67,7 @@ export const syncGoogleSheets = async (spreadsheetId) => {
   try {
     const response = await fetchSpreadsheetData(spreadsheetId, token);
     const data = await response.json();
+    console.log("--- fetched spreadsheet data");
     console.log(data);
     const { sheets, spreadsheetUrl, properties } = data;
     const spreadsheetTitle = _.get(properties, "title", "");
@@ -43,13 +75,14 @@ export const syncGoogleSheets = async (spreadsheetId) => {
       console.log("Not a valid spreadsheet ID or no rows to display");
       return null;
     }
-
     const {
       properties: { title, gridProperties },
     } = sheets[0];
     const sheetTitle = title || "";
     const { rowCount, columnCount } = gridProperties;
     console.log("Grid properties: ", gridProperties);
+    const headersData = await fetchColumnHeaders(spreadsheetId, columnCount);
+    console.log(headersData);
     return {
       id: spreadsheetId,
       "row-count": rowCount,
@@ -57,6 +90,14 @@ export const syncGoogleSheets = async (spreadsheetId) => {
       url: spreadsheetUrl,
       title: spreadsheetTitle,
       "sheet-title": sheetTitle,
+      "column-config": {
+        mapping: {
+          quote: null,
+          source: null,
+          author: null,
+        },
+        "column-headers": headersData,
+      },
     };
   } catch (err) {
     console.log(err);
@@ -68,14 +109,11 @@ export const fetchQuote = async (sheetsId, range) => {
   const token = await getAuthToken();
   console.log("Fetching range: ", range);
   const init = {
-    method: "GET",
-    async: true,
+    ...GET_HEADER,
     headers: {
       Authorization: "Bearer " + token,
       "Content-Type": "application/json",
     },
-    mode: "cors",
-    contentType: "json",
   };
   try {
     const response = await fetch(
