@@ -98,9 +98,12 @@ const formatQuote = async (data) => {
   }
   const formattedQuote = quoteContext[quoteIndex];
   let attrQuote;
-  if (authorIndex && sourceIndex) {
+  // If index = -1, that indicates that we do not want to display the column.
+  const hasAuthorIndex = authorIndex != null && authorIndex >= 0;
+  const hasSourceIndex = sourceIndex != null && sourceIndex >= 0;
+  if (hasAuthorIndex && hasSourceIndex) {
     attrQuote = `\u2014 ${quoteContext[authorIndex]}, <i>${quoteContext[sourceIndex]}</i>`;
-  } else if (authorIndex || sourceIndex) {
+  } else if (hasAuthorIndex || hasSourceIndex) {
     attrQuote = authorIndex
       ? `\u2014 ${quoteContext[authorIndex]}`
       : `\u2014 <i>${quoteContext[1]}</i>`;

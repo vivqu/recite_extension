@@ -1,4 +1,4 @@
-import { getQuote } from "./quotes.js";
+import { getQuote, formatQuote } from "./quotes.js";
 
 const DEFAULT_QUOTES = [
   {
@@ -56,32 +56,22 @@ const DEFAULT_QUOTES = [
 ];
 
 const renderQuote = (dict) => {
-  if (_.get(dict, "text") == null) {
+  if (_.get(dict, "quote") == null) {
     return;
   }
-  const { text, source, author } = dict;
+  const { quote, attribution } = dict;
   document.getElementsByClassName("quote-container")[0].style.display = "block";
-  document.querySelector(".quote-text").innerHTML = text;
-  let attribution = "";
-  if (source && author) {
-    attribution = `\u2014 ${author}, <i>${source}</i>`;
-  } else if (author || source) {
-    attribution = author ? `\u2014 ${author}` : `\u2014 <i>${source}</i>`;
+  document.querySelector(".quote-text").innerHTML = quote;
+  if (attribution) {
+    document.querySelector(".attr-text").innerHTML = attribution;
   }
-  document.querySelector(".attr-text").innerHTML = attribution;
 };
 
 const loadQuote = async () => {
   try {
     const data = await getQuote();
-    const { values } = data;
-    const quoteContext = values[0];
-    const quoteDict = {
-      text: quoteContext[0],
-      source: quoteContext[1],
-      author: quoteContext[2],
-    };
-    renderQuote(quoteDict);
+    const formattedQuote = await formatQuote(data);
+    renderQuote(formattedQuote);
   } catch (e) {
     // Render default set of quotes if no saved configuration
     // is available.

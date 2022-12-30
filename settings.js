@@ -7,6 +7,9 @@ import {
 } from "./quotes.js";
 import { syncGoogleSheets } from "./oauth.js";
 
+const DO_NOT_DISPLAY_LABEL = "none";
+const DO_NOT_DISPLAY_OPTION = -1;
+
 const loadExampleQuote = async () => {
   const data = await getQuote();
   const formattedQuote = await formatQuote(data);
@@ -40,6 +43,9 @@ const setColumnConfig = async (config) => {
   if (columnFormat.quote != null) {
     let columnTitle;
     const quoteIndex = columnFormat.quote;
+    if (quoteIndex == DO_NOT_DISPLAY_OPTION) {
+      console.error("Invalid column index: must always display quote.");
+    }
     if (headers.length > quoteIndex) {
       columnTitle = headers[quoteIndex];
     }
@@ -50,39 +56,103 @@ const setColumnConfig = async (config) => {
   if (columnFormat.author != null) {
     let columnTitle;
     const authorIndex = columnFormat.author;
-    if (headers.length > authorIndex) {
-      columnTitle = headers[authorIndex];
+    if (authorIndex == DO_NOT_DISPLAY_OPTION) {
+      configDisplay += `<div id="author-column" class="settings-row"><p>Author: Do not show</p></div>`;
+    } else {
+      if (headers.length > authorIndex) {
+        columnTitle = headers[authorIndex];
+      }
+      configDisplay += `<div id="author-column" class="settings-row"><p>Author: Column ${
+        authorIndex + 1
+      }${columnTitle ? ` ("${columnTitle}")` : ""}</p></div>`;
     }
-    configDisplay += `<div id="author-column" class="settings-row"><p>Author: Column ${
-      authorIndex + 1
-    }${columnTitle ? ` ("${columnTitle}")` : ""}</p></div>`;
   }
   if (columnFormat.source != null) {
     let columnTitle;
     const sourceIndex = columnFormat.source;
-    if (headers.length > sourceIndex) {
-      columnTitle = headers[sourceIndex];
+    if (sourceIndex == DO_NOT_DISPLAY_OPTION) {
+      configDisplay += `<div id="source-column" class="settings-row"><p>Source: Do not show</p></div>`;
+    } else {
+      if (headers.length > sourceIndex) {
+        columnTitle = headers[sourceIndex];
+      }
+      configDisplay += `<div id="source-column" class="settings-row"><p>Source: Column ${
+        sourceIndex + 1
+      }${columnTitle ? ` ("${columnTitle}")` : ""}</p></div>`;
     }
-    configDisplay += `<div id="source-column" class="settings-row"><p>Source: Column ${
-      sourceIndex + 1
-    }${columnTitle ? ` ("${columnTitle}")` : ""}</p></div>`;
   }
   settingsBlock.innerHTML = configDisplay;
 };
 
 const saveColumnConfig = async () => {
+  // Add validation
+  let quoteIndex, authorIndex, sourceIndex;
+
+  const colRegex = /^col-([^ ]+)$/;
+  const columnNames = ["quote", "author", "source"];
+  for (const name of columnNames) {
+    const selectComponent = document.getElementById(`${name}-column`);
+    const value = selectComponent.value;
+    let colIndex = null;
+    if (value == DO_NOT_DISPLAY_LABEL) {
+      // Set index to "do not display" to indicate that this is a hidden attribute.
+      colIndex = DO_NOT_DISPLAY_OPTION;
+    } else {
+      // Get the index of the column
+      const match = value.match(colRegex);
+      if (match) {
+        colIndex = parseInt(match[1]);
+      }
+    }
+    switch (name) {
+      case "quote":
+        quoteIndex = colIndex;
+        break;
+      case "author":
+        authorIndex = colIndex;
+        break;
+      case "source":
+        sourceIndex = colIndex;
+        break;
+    }
+  }
+
+  if (quoteIndex == null || quoteIndex == -1) {
+    console.log("Quote index not selected");
+    return;
+  } else if (
+    quoteIndex == authorIndex ||
+    quoteIndex == sourceIndex ||
+    (authorIndex == sourceIndex && authorIndex != DO_NOT_DISPLAY_OPTION)
+  ) {
+    // TODO: add errors
+    console.log("Not enough options selected");
+    return;
+  }
+
+  // Save
+  const config = await getSpreadsheetConfig();
+  let newColumnConfig = { ...config["column-config"] };
+  newColumnConfig.mapping = {
+    author: authorIndex,
+    quote: quoteIndex,
+    source: sourceIndex,
+  };
+  if (!_.isEqual(newColumnConfig.mapping, config["column-config"].mapping)) {
+    // Skip saving if the indices do not change.
+    const updatedConfig = { ...config, "column-config": newColumnConfig };
+    await saveSpreadsheetConfig(updatedConfig);
+    setColumnConfig(updatedConfig);
+  } else {
+    console.log("Config not changed: skipping save.");
+    setColumnConfig(config);
+  }
+
   // Restore edit button
   const editButton = document.querySelector(".edit-columns");
   editButton.style.display = "block";
   const saveButton = document.querySelector(".save-columns");
   saveButton.style.display = "none";
-
-  // Add validation
-
-  // Save
-
-  const config = await getSpreadsheetConfig();
-  setColumnConfig(config);
 };
 
 const editColumnConfig = async () => {
@@ -99,10 +169,12 @@ const editColumnConfig = async () => {
   const config = await getSpreadsheetConfig();
   const columnFormat = getQuoteFormatConfig(config);
   const { quote, author, source, headers } = columnFormat;
-  const createOptions = (index) => {
+  const createOptions = (index, includeNone = false) => {
     let options;
     if (index != null) {
-      options = `<option value="col-${index}">${headers[index]}</option>`;
+      if (index !== DO_NOT_DISPLAY_OPTION) {
+        options = `<option selected value="col-${index}">${headers[index]}</option>`;
+      }
       for (let i = 0; i < headers.length; i++) {
         if (i === index) {
           continue;
@@ -114,6 +186,12 @@ const editColumnConfig = async () => {
       for (let i = 0; i < headers.length; i++) {
         options += `<option value="col-${i}">${headers[i]}</option>`;
       }
+    }
+    // Add empty option
+    if (includeNone) {
+      options += `<option ${
+        index === DO_NOT_DISPLAY_OPTION ? "selected" : ""
+      } value="${DO_NOT_DISPLAY_LABEL}">Do not show</option>`;
     }
     return options;
   };
@@ -131,7 +209,7 @@ const editColumnConfig = async () => {
   </select>
 </div>`;
 
-  const authorOptions = createOptions(author);
+  const authorOptions = createOptions(author, true);
   configDisplay += `<div class="settings-row">
 <div class="settings-row-title"><p>Author</p></div>
 <select name="author-column" id="author-column">
@@ -144,7 +222,7 @@ const editColumnConfig = async () => {
 </select>
 </div>`;
 
-  const sourceOptions = createOptions(source);
+  const sourceOptions = createOptions(source, true);
   configDisplay += `<div class="settings-row">
 <div class="settings-row-title"><p>Source</p></div>
 <select name="source-column" id="source-column">
