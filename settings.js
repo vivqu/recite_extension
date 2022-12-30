@@ -38,6 +38,9 @@ const setColumnConfig = async (config) => {
   );
   settingsContainer.style.display = "block";
 
+  const errorContainer = document.getElementById("column-settings-error");
+  errorContainer.style.display = "none";
+
   const settingsBlock = document.getElementById("column-settings");
   let configDisplay = "";
   if (columnFormat.quote != null) {
@@ -119,14 +122,21 @@ const saveColumnConfig = async () => {
 
   if (quoteIndex == null || quoteIndex == -1) {
     console.log("Quote index not selected");
+    const errorContainer = document.getElementById("column-settings-error");
+    errorContainer.style.display = "block";
+    errorContainer.innerHTML =
+      "<p>Please correct the following error: must select a column for quote text</p>";
     return;
   } else if (
     quoteIndex == authorIndex ||
     quoteIndex == sourceIndex ||
     (authorIndex == sourceIndex && authorIndex != DO_NOT_DISPLAY_OPTION)
   ) {
-    // TODO: add errors
     console.log("Not enough options selected");
+    const errorContainer = document.getElementById("column-settings-error");
+    errorContainer.style.display = "block";
+    errorContainer.innerHTML =
+      "<p>Please correct the following error: duplicate columns selected.</p>";
     return;
   }
 
