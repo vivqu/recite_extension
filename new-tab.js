@@ -1,4 +1,5 @@
 import { getQuote, formatQuote } from "./quotes.js";
+import { DEFAULT_COLOR_OPTIONS } from "./settings.js";
 
 const DEFAULT_QUOTES = [
   {
@@ -67,6 +68,29 @@ const renderQuote = (dict) => {
   }
 };
 
+const loadColors = async () => {
+  chrome.storage.sync.get(["color-config"]).then((result) => {
+    const colors = _.get(result, "color-config.colors", DEFAULT_COLOR_OPTIONS);
+    const { text, icon, background, quote } = colors;
+    const attrColor = _.get(colors, "attrText") || text;
+
+    const container = _.first(document.getElementsByClassName("container"));
+    container.style["background-color"] = background;
+
+    const quoteText = _.first(document.getElementsByClassName("quote-text"));
+    quoteText.style.color = text;
+    quoteText.style["background-color"] = quote;
+
+    const attrText = _.first(document.getElementsByClassName("attr-text"));
+    attrText.style.color = attrColor;
+
+    const quoteIcons = document.getElementsByClassName("quote-icon");
+    for (const quoteIcon of quoteIcons) {
+      quoteIcon.style.color = icon;
+    }
+  });
+};
+
 const loadQuote = async () => {
   try {
     const data = await getQuote();
@@ -81,4 +105,5 @@ const loadQuote = async () => {
   }
 };
 
+loadColors();
 loadQuote();

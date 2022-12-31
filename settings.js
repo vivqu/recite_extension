@@ -10,6 +10,47 @@ import { syncGoogleSheets } from "./oauth.js";
 const DO_NOT_DISPLAY_LABEL = "none";
 const DO_NOT_DISPLAY_OPTION = -1;
 
+const COLOR_OPTIONS = {
+  GRAY: {
+    key: "GRAY",
+    background: "#fff",
+    quote: "#f7f7f7",
+    text: "#000",
+    icon: "#808080",
+  },
+  BLUE: {
+    key: "BLUE",
+    background: "#1d3557",
+    quote: "#225371",
+    text: "#e1e0f3",
+    icon: "#001023",
+  },
+  PURPLE: {
+    key: "PURPLE",
+    background: "#241d3a",
+    quote: "#373059",
+    text: "#f2ddff",
+    icon: "#be95c4",
+  },
+  GREEN: {
+    key: "GREEN",
+    background: "#344e41",
+    quote: "#3a5a40",
+    text: "#dad7cd",
+    icon: "#a3b18a",
+  },
+  PEACH: {
+    key: "PEACH",
+    background: "#ffbbaf",
+    quote: "#ef9888",
+    text: "#fff5f3",
+    attrText: "#a95a4a",
+    icon: "#ffffff",
+  },
+};
+
+export const DEFAULT_COLOR_OPTIONS = COLOR_OPTIONS.GRAY;
+
 const loadExampleQuote = async () => {
   const data = await getQuote();
   const formattedQuote = await formatQuote(data);
@@ -27,6 +68,73 @@ const clearSource = () => {
     enableSpreadsheetForm(true);
     document.querySelector(".sheet-config").innerHTML = "";
   });
+};
+
+const setColorConfig = (colors) => {
+  const grayButton = document.getElementById("color-gray");
+  const blueButton = document.getElementById("color-blue");
+  const purpleButton = document.getElementById("color-purple");
+  const greenButton = document.getElementById("color-green");
+  const peachButton = document.getElementById("color-peach");
+
+  const resetButtons = () => {
+    const buttons = [
+      grayButton,
+      blueButton,
+      purpleButton,
+      greenButton,
+      peachButton,
+    ];
+    for (const button of buttons) {
+      button.style["border-width"] = "0px";
+      button.style["margin-left"] = "4px";
+      button.style["margin-right"] = "4px";
+    }
+  };
+
+  resetButtons();
+  let selectedButton;
+  switch (colors.key) {
+    case "GRAY":
+      selectedButton = grayButton;
+      break;
+    case "BLUE":
+      selectedButton = blueButton;
+      break;
+    case "PURPLE":
+      selectedButton = purpleButton;
+      break;
+    case "GREEN":
+      selectedButton = greenButton;
+      break;
+    case "PEACH":
+      selectedButton = peachButton;
+      break;
+  }
+  if (selectedButton) {
+    selectedButton.style["border-width"] = "4px";
+    selectedButton.style["margin-left"] = "0px";
+    selectedButton.style["margin-right"] = "0px";
+  }
+};
+
+const updateColorConfig = ({ srcElement }) => {
+  const COLOR_ID_TO_OPTION_MAPPING = {
+    "color-gray": COLOR_OPTIONS.GRAY,
+    "color-blue": COLOR_OPTIONS.BLUE,
+    "color-purple": COLOR_OPTIONS.PURPLE,
+    "color-green": COLOR_OPTIONS.GREEN,
+    "color-peach": COLOR_OPTIONS.PEACH,
+  };
+  const colorId = srcElement.id;
+  if (colorId in COLOR_ID_TO_OPTION_MAPPING) {
+    const option = COLOR_ID_TO_OPTION_MAPPING[colorId];
+    chrome.storage.sync.set({ "color-config": { colors: option } }).then(() => {
+      setColorConfig(option);
+    });
+  } else {
+    console.error(`Error: color ID (${colorId}) not found`);
+  }
 };
 
 const setColumnConfig = async (config) => {
@@ -362,7 +470,7 @@ const handleSpreadsheetFormSubmit = () => {
       }
     );
   } else {
-    // TODO: Error invalid spreadsheet
+    console.error("Error: invalid spreadsheet");
   }
 };
 
@@ -397,29 +505,42 @@ window.onload = function () {
   document
     .querySelector(".save-columns")
     .addEventListener("click", saveColumnConfig);
+
+  const colorButtons = document.querySelectorAll(".color-button");
+  for (const button of colorButtons) {
+    button.addEventListener("click", updateColorConfig);
+  }
 };
 
-chrome.storage.sync.get(["sheets-data", "sheets-config"], function (result) {
-  const spreadsheetId = _.get(result, "sheets-data.id");
-  const spreadsheetURL = _.get(result, "sheets-data.url");
-  console.log("-------- stored data");
-  console.log(_.get(result, "sheets-data"));
-  console.log(_.get(result, "sheets-config"));
-  if (!spreadsheetId) {
-    // No saved sheet or configuration
-    enableSpreadsheetForm(true);
-  } else {
-    enableSpreadsheetForm(false);
-    const config = _.get(result, "sheets-config");
-    const title = _.get(config, "title");
-    setSpreadsheetTitleDisplay(title, spreadsheetURL);
-
-    // If config does not exist, fetch the spreadsheet data
-    if (!config) {
-      fetchAndSaveSpreadsheetData(spreadsheetId);
+chrome.storage.sync.get(
+  ["sheets-data", "sheets-config", "color-config"],
+  function (result) {
+    const spreadsheetId = _.get(result, "sheets-data.id");
+    const spreadsheetURL = _.get(result, "sheets-data.url");
+    const colors = _.get(result, "color-config.colors", DEFAULT_COLOR_OPTIONS);
+    console.log("-------- stored data");
+    console.log(_.get(result, "sheets-data"));
+    console.log(_.get(result, "sheets-config"));
+    console.log(colors);
+    if (!spreadsheetId) {
+      // No saved sheet or configuration
+      enableSpreadsheetForm(true);
     } else {
-      setSpreadsheetConfigDisplay(config);
-      setColumnConfig(config);
+      enableSpreadsheetForm(false);
+      const config = _.get(result, "sheets-config");
+      const title = _.get(config, "title");
+      setSpreadsheetTitleDisplay(title, spreadsheetURL);
+
+      // If config does not exist, fetch the spreadsheet data
+      if (!config) {
+        fetchAndSaveSpreadsheetData(spreadsheetId);
+      } else {
+        setSpreadsheetConfigDisplay(config);
+        setColumnConfig(config);
+      }
     }
+
+    // Set color display
+    setColorConfig(colors);
   }
-});
+);

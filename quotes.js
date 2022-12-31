@@ -110,13 +110,19 @@ const formatQuote = async (data) => {
     link = quoteContext[linkIndex];
   }
   if (hasAuthorIndex && hasSourceIndex) {
-    attrQuote = `\u2014 ${quoteContext[authorIndex]}, `;
-    const sourceHTML = `<i>${quoteContext[sourceIndex]}</i>`;
-    if (link) {
-      attrQuote += `<a href=${link}>${sourceHTML}</a>`;
-    } else {
-      attrQuote += sourceHTML;
+    attrQuote = `${quoteContext[authorIndex]}`;
+    const source = quoteContext[sourceIndex];
+    if (source) {
+      const sourceHTML = `, <i>${source}</i>`;
+      if (link) {
+        attrQuote += `<a href=${link}>${sourceHTML}</a>`;
+      } else {
+        attrQuote += sourceHTML;
+      }
+    } else if (link) {
+      attrQuote = `<a href=${link}>${attrQuote}</a>`;
     }
+    attrQuote = "\u2014 " + attrQuote;
   } else if (hasAuthorIndex || hasSourceIndex) {
     attrQuote = authorIndex
       ? `${quoteContext[authorIndex]}`

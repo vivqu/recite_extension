@@ -28,6 +28,30 @@
       .settings-row-title {
         margin-right: 8px;
       }
+      
+      .color-button {
+        border-radius: 16px;
+        margin-left: 4px;
+        margin-right: 4px; 
+        border-color: #73ccff;
+        border-style: solid;
+        border-width: 0px;
+      }
+      .color-button.gray {
+        background-color: #9d9d9d;
+      }
+      .color-button.blue {
+        background-color: #1d9dec;
+      }
+      .color-button.purple {
+        background-color: #6954cf;
+      }
+      .color-button.green {
+        background-color: #269d3c;
+      }
+      .color-button.peach {
+        background-color: #ffbbaf;
+      }
     </style>
     <script type="module" src="lodash.js"></script>
     <script type="module" src="settings.js"></script>
@@ -66,6 +90,15 @@
     <div class="sheet-config"></div>
     <button class="test-quote">Get a quote</button>
     <div class="example-quote"><i>Load a quote from your google sheets page here.</i></div>
+    <div style="margin-top: 30px"></div>
+    <p>Select display color</p>
+    <div class="color-settings-container">
+      <button class="color-button gray" id="color-gray"></button>
+      <button class="color-button blue" id="color-blue"></button>
+      <button class="color-button purple" id="color-purple"></button>
+      <button class="color-button green" id="color-green"></button>
+      <button class="color-button peach" id="color-peach"></button>
+    </div>
   </body>
   
 </html>
