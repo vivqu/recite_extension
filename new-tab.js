@@ -1,5 +1,5 @@
 import { getQuote, formatQuote } from "./quotes.js";
-import { DEFAULT_COLOR_OPTIONS } from "./settings.js";
+import { DEFAULT_COLOR_OPTIONS } from "./colors.js";
 
 const DEFAULT_QUOTES = [
   {
@@ -32,7 +32,7 @@ const DEFAULT_QUOTES = [
   },
   {
     text: "Creativity is seeing what others see and thinking what no one else ever thought.",
-    author: "Albert Einsteins",
+    author: "Albert Einstein",
   },
   {
     text: "No matter what people tell you, words and ideas can change the world.",
@@ -101,7 +101,9 @@ const loadQuote = async () => {
     // is available.
     console.log(e);
     const index = _.random(0, DEFAULT_QUOTES.length - 1);
-    renderQuote(DEFAULT_QUOTES[index]);
+    const { text, author } = DEFAULT_QUOTES[index];
+    const formattedQuote = { quote: text, attribution: `\u2014 ${author}` };
+    renderQuote(formattedQuote);
   }
 };
 

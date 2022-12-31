@@ -6,50 +6,10 @@ import {
   getQuoteFormatConfig,
 } from "./quotes.js";
 import { syncGoogleSheets } from "./oauth.js";
+import { COLOR_OPTIONS, DEFAULT_COLOR_OPTIONS } from "./colors.js";
 
 const DO_NOT_DISPLAY_LABEL = "none";
 const DO_NOT_DISPLAY_OPTION = -1;
-
-const COLOR_OPTIONS = {
-  GRAY: {
-    key: "GRAY",
-    background: "#fff",
-    quote: "#f7f7f7",
-    text: "#000",
-    icon: "#808080",
-  },
-  BLUE: {
-    key: "BLUE",
-    background: "#1d3557",
-    quote: "#225371",
-    text: "#e1e0f3",
-    icon: "#001023",
-  },
-  PURPLE: {
-    key: "PURPLE",
-    background: "#241d3a",
-    quote: "#373059",
-    text: "#f2ddff",
-    icon: "#be95c4",
-  },
-  GREEN: {
-    key: "GREEN",
-    background: "#344e41",
-    quote: "#3a5a40",
-    text: "#dad7cd",
-    icon: "#a3b18a",
-  },
-  PEACH: {
-    key: "PEACH",
-    background: "#ffbbaf",
-    quote: "#ef9888",
-    text: "#fff5f3",
-    attrText: "#a95a4a",
-    icon: "#ffffff",
-  },
-};
-
-export const DEFAULT_COLOR_OPTIONS = COLOR_OPTIONS.GRAY;
 
 const loadExampleQuote = async () => {
   const data = await getQuote();
@@ -476,35 +436,44 @@ const handleSpreadsheetFormSubmit = () => {
 
 window.onload = function () {
   const form = document.getElementById("spreadsheet-form");
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    handleSpreadsheetFormSubmit();
-  });
+  if (form) {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      handleSpreadsheetFormSubmit();
+    });
+  }
   const urlInput = document.getElementById("source-url-input");
-  urlInput.addEventListener("input", () => {
-    const submitButton = document.getElementById("source-save");
-    submitButton.disabled = urlInput.value.length == 0;
-  });
+  if (urlInput) {
+    urlInput.addEventListener("input", () => {
+      const submitButton = document.getElementById("source-save");
+      submitButton.disabled = urlInput.value.length == 0;
+    });
+  }
 
-  document
-    .querySelector(".clear-source")
-    .addEventListener("click", clearSource);
+  const clearSourceButton = document.querySelector(".clear-source");
+  if (clearSourceButton) {
+    clearSourceButton.addEventListener("click", clearSource);
+  }
 
-  document
-    .querySelector(".sync-button")
-    .addEventListener("click", refetchSpreadsheetData);
+  const syncButton = document.querySelector(".sync-button");
+  if (syncButton) {
+    syncButton.addEventListener("click", refetchSpreadsheetData);
+  }
 
-  document
-    .querySelector(".test-quote")
-    .addEventListener("click", loadExampleQuote);
+  const testQuoteButton = document.querySelector(".test-quote");
+  if (testQuoteButton) {
+    testQuoteButton.addEventListener("click", loadExampleQuote);
+  }
 
-  document
-    .querySelector(".edit-columns")
-    .addEventListener("click", editColumnConfig);
+  const editButton = document.querySelector(".edit-columns");
+  if (editButton) {
+    editButton.addEventListener("click", editColumnConfig);
+  }
 
-  document
-    .querySelector(".save-columns")
-    .addEventListener("click", saveColumnConfig);
+  const saveButton = document.querySelector(".save-columns");
+  if (saveButton) {
+    saveButton.addEventListener("click", saveColumnConfig);
+  }
 
   const colorButtons = document.querySelectorAll(".color-button");
   for (const button of colorButtons) {
