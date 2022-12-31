@@ -84,15 +84,30 @@ const setColumnConfig = async (config) => {
       }${columnTitle ? ` ("${columnTitle}")` : ""}</p></div>`;
     }
   }
+
+  if (columnFormat.link != null) {
+    let columnTitle;
+    const linkIndex = columnFormat.link;
+    if (linkIndex == DO_NOT_DISPLAY_OPTION) {
+      configDisplay += `<div id="link-column" class="settings-row"><p>Link: Do not show</p></div>`;
+    } else {
+      if (headers.length > linkIndex) {
+        columnTitle = headers[linkIndex];
+      }
+      configDisplay += `<div id="source-column" class="settings-row"><p>Link: Column ${
+        linkIndex + 1
+      }${columnTitle ? ` ("${columnTitle}")` : ""}</p></div>`;
+    }
+  }
   settingsBlock.innerHTML = configDisplay;
 };
 
 const saveColumnConfig = async () => {
   // Add validation
-  let quoteIndex, authorIndex, sourceIndex;
+  let quoteIndex, authorIndex, sourceIndex, linkIndex;
 
   const colRegex = /^col-([^ ]+)$/;
-  const columnNames = ["quote", "author", "source"];
+  const columnNames = ["quote", "author", "source", "link"];
   for (const name of columnNames) {
     const selectComponent = document.getElementById(`${name}-column`);
     const value = selectComponent.value;
@@ -117,10 +132,13 @@ const saveColumnConfig = async () => {
       case "source":
         sourceIndex = colIndex;
         break;
+      case "link":
+        linkIndex = colIndex;
+        break;
     }
   }
 
-  if (quoteIndex == null || quoteIndex == -1) {
+  if (quoteIndex == null || quoteIndex === -1) {
     console.log("Quote index not selected");
     const errorContainer = document.getElementById("column-settings-error");
     errorContainer.style.display = "block";
@@ -128,9 +146,12 @@ const saveColumnConfig = async () => {
       "<p>Please correct the following error: must select a column for quote text</p>";
     return;
   } else if (
-    quoteIndex == authorIndex ||
-    quoteIndex == sourceIndex ||
-    (authorIndex == sourceIndex && authorIndex != DO_NOT_DISPLAY_OPTION)
+    quoteIndex === authorIndex ||
+    quoteIndex === sourceIndex ||
+    quoteIndex === linkIndex ||
+    (authorIndex === sourceIndex && authorIndex !== DO_NOT_DISPLAY_OPTION) ||
+    (authorIndex === linkIndex && authorIndex !== DO_NOT_DISPLAY_OPTION) ||
+    (sourceIndex === linkIndex && sourceIndex !== DO_NOT_DISPLAY_OPTION)
   ) {
     console.log("Not enough options selected");
     const errorContainer = document.getElementById("column-settings-error");
@@ -147,6 +168,7 @@ const saveColumnConfig = async () => {
     author: authorIndex,
     quote: quoteIndex,
     source: sourceIndex,
+    link: linkIndex,
   };
   if (!_.isEqual(newColumnConfig.mapping, config["column-config"].mapping)) {
     // Skip saving if the indices do not change.
@@ -178,7 +200,7 @@ const editColumnConfig = async () => {
   // Add each of the columns here
   const config = await getSpreadsheetConfig();
   const columnFormat = getQuoteFormatConfig(config);
-  const { quote, author, source, headers } = columnFormat;
+  const { quote, author, source, link, headers } = columnFormat;
   const createOptions = (index, includeNone = false) => {
     let options;
     if (index != null) {
@@ -244,6 +266,20 @@ const editColumnConfig = async () => {
     ${sourceOptions}
 </select>
 </div>`;
+
+  const linkOptions = createOptions(link, true);
+  configDisplay += `<div class="settings-row">
+<div class="settings-row-title"><p>Link</p></div>
+<select name="link-column" id="link-column">
+  ${
+    link == null
+      ? `<option value="none" selected disabled hidden>Select a column</option>`
+      : null
+  }
+  ${linkOptions}
+</select>
+</div>`;
+
   settingsBlock.innerHTML = configDisplay;
 };
 
