@@ -12,14 +12,14 @@
       .title-icon {
         width: 40px;
         height: 40px;
-        margin-right: 8px;
+        margin-right: 16px;
       }
       .title-container {
         display: flex;
         align-items: center;
       }
       .subtitle-container {
-        margin-left: 49px;
+        margin-left: 57px;
       }
       h2 {
         font-size: 20px;
@@ -243,7 +243,24 @@
       .spreadsheet-column-error {
         display: none;
         color: #ff5e5e;
-      }       
+      }   
+      /* Source */
+      .source {
+        position: fixed;
+        right: 40px;
+        bottom: 16px;
+        background-color: rgba(255, 255, 255, 0.5);
+        padding-left: 10px;
+        padding-right: 10px;
+        color: #737373;
+      }
+      .source > p {
+        font-size: 14px;
+      }
+      .source > p > a {
+        font-size: 14px;
+        color: #1d9dec;
+      }
     </style>
     <script type="module" src="lodash.js"></script>
     <script type="module" src="settings.js"></script>
@@ -370,5 +387,6 @@
         </div>
       </div>
     </div>
+    <div class="source"><p>Built by <a href="https://vivqu.com/" target="_blank">Vivian Qu</a></p></div>
   </body>
 </html>
