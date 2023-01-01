@@ -1,6 +1,6 @@
 {
   "name": "Recite",
-  "description": "Remember quotes from your favorite books and articles.",
+  "description": "Remember all your saved quotes and highlights.",
   "version": "1.0",
   "manifest_version": 3,
   "background": {
