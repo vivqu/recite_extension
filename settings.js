@@ -459,7 +459,8 @@ const fetchAndSaveSpreadsheetData = async (spreadsheetId) => {
     // Set an error state for the form
     const errorDisplay = document.querySelector(".spreadsheet-form-error");
     if (errorDisplay) {
-      let message = "Oops! Something went wrong. We could not load this spreadsheet, please try a different spreadsheet URL.";
+      let message =
+        "Oops! Something went wrong. We could not load this spreadsheet, please try a different spreadsheet URL.";
       switch (config.error.code) {
         case 403:
           message =
@@ -484,11 +485,7 @@ const fetchAndSaveSpreadsheetData = async (spreadsheetId) => {
 };
 
 const refetchSpreadsheetData = async () => {
-  try {
-    const config = await getSpreadsheetConfig();
-  } catch (e) {
-    // TODO
-  }
+  const config = await getSpreadsheetConfig();
   if (_.get(config, "sheetsId", 0) === 0) {
     console.log("No google sheet to sync");
     return;
@@ -504,8 +501,7 @@ const refetchSpreadsheetData = async () => {
 const handleSpreadsheetFormSubmit = () => {
   const urlInput = document.getElementById("source-url-input");
   const url = urlInput.value;
-  const regex =
-    /https:\/\/docs.google.com\/spreadsheets\/d\/([^\s\/]*)/g;
+  const regex = /https:\/\/docs.google.com\/spreadsheets\/d\/([^\s\/]*)/g;
   const matches = regex.exec(url);
   if (matches != null && matches.length > 1) {
     const errorDisplay = document.querySelector(".spreadsheet-form-error");
