@@ -195,6 +195,10 @@
         font-size: 16px;
         margin-bottom: 1.2em;
       }
+      .spreadsheet-input-error, .spreadsheet-form-error {
+        display: none;
+        color: #ff5e5e;
+      }
       /* Spreadsheet Sync Settings */
       .spreadsheet-sync-settings {
         margin-top: 20px;
@@ -280,6 +284,7 @@
           <div class="spreadsheet-settings-title"><p><b>Spreadsheet</b></p></div>
           <div class="spreadsheet-settings-content">
             <p class="settings-explainer">Add a Google spreadsheet link to start displaying your saved quotes. Use this template to get started: <a href="https://docs.google.com/spreadsheets/d/1TsE9HSxYSaYHVrgprOMYRpm6N5E96F8bejeff_t9nqc/edit#gid=0">Recite Extension - TEMPLATE</a></p>
+            <p class="spreadsheet-input-error"></p>
             <form id="spreadsheet-form">
               <input class="form-url" id="source-url-input" type="url" placeholder="https://docs.google.com/spreadsheets/d/..."></input>
               <input class="form-submit" id="source-save" type="submit" style="margin-left: 4px;" value="Submit" disabled></input>
@@ -292,6 +297,7 @@
           <div class="spreadsheet-settings-title"><p><b>Spreadsheet</b></p></div>
           <div class="spreadsheet-settings-content">
             <p class="settings-explainer">Quotes will be loaded from this spreadsheet. Click the clear button to remove this spreadsheet as the source for quotes.</p>
+            <p class="spreadsheet-form-error"></p>
             <a id="spreadsheet-link"></a>
           </div>  
           <div class="spreadsheet-settings-action">

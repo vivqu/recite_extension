@@ -28,23 +28,12 @@ const loadExampleQuote = async () => {
 
 const clearSource = () => {
   chrome.storage.sync.remove(["sheets-data", "sheets-config"], () => {
-    enableSpreadsheetInputForm(true);
-    // Also clears any existing data for the detail and columns sections
-    const selectorIds = [
-      "spreadsheet-detail-title",
-      "spreadsheet-detail-rows",
-      "spreadsheet-detail-columns",
-      "spreadsheet-column-quote",
-      "spreadsheet-column-author",
-      "spreadsheet-column-source",
-      "spreadsheet-column-link",
-    ];
-    for (const selectorId of selectorIds) {
-      const display = document.getElementById(selectorId);
-      display.innerHTML = "<p>None</p>";
+    displaySpreadsheetInputForm(true);
+    displaySpreadsheetDetailSettings(false);
+    const errorDisplay = document.querySelector(".spreadsheet-form-error");
+    if (errorDisplay.style.display !== "none") {
+      errorDisplay.style.display = "none";
     }
-    const errorDisplay = document.getElementById("spreadsheet-column-error");
-    errorDisplay.style.display = "none";
   });
 };
 
@@ -388,23 +377,48 @@ const editColumnConfig = async () => {
 </select>`;
 };
 
-const enableSpreadsheetInputForm = (enable) => {
+const displaySpreadsheetInputForm = (show) => {
+  // Hides the URL input form and shows the saved spreadsheet URL section.
+  // We do not show the detail settings until the spreadsheet data is
+  // successfully fetched.
   const formSection = document.querySelector(".enter-spreadsheet-section");
-  formSection.style.display = enable ? "block" : "none";
+  formSection.style.display = show ? "block" : "none";
 
   const infoSection = document.querySelector(".saved-spreadsheet-section");
-  infoSection.style.display = enable ? "none" : "block";
+  infoSection.style.display = show ? "none" : "block";
+};
 
+const displaySpreadsheetDetailSettings = (show) => {
+  // Detail settings for the spreadsheet
   const loadQuoteSection = document.querySelector(
     ".color-settings-test-spreadsheet"
   );
-  loadQuoteSection.style.display = enable ? "none" : "block";
+  loadQuoteSection.style.display = show ? "block" : "none";
 
   const syncSection = document.querySelector(".spreadsheet-sync-settings");
-  syncSection.style.display = enable ? "none" : "block";
+  syncSection.style.display = show ? "block" : "none";
 
   const columnSection = document.querySelector(".spreadsheet-column-settings");
-  columnSection.style.display = enable ? "none" : "block";
+  columnSection.style.display = show ? "block" : "none";
+
+  if (!show) {
+    // Also clears any existing data for the detail and columns sections
+    const selectorIds = [
+      "spreadsheet-detail-title",
+      "spreadsheet-detail-rows",
+      "spreadsheet-detail-columns",
+      "spreadsheet-column-quote",
+      "spreadsheet-column-author",
+      "spreadsheet-column-source",
+      "spreadsheet-column-link",
+    ];
+    for (const selectorId of selectorIds) {
+      const display = document.getElementById(selectorId);
+      display.innerHTML = "<p>None</p>";
+    }
+    const errorDisplay = document.getElementById("spreadsheet-column-error");
+    errorDisplay.style.display = "none";
+  }
 };
 
 const setSpreadsheetTitleDisplay = (title, url) => {
@@ -441,31 +455,64 @@ const setSpreadsheetConfigDisplay = (config) => {
 
 const fetchAndSaveSpreadsheetData = async (spreadsheetId) => {
   const config = await syncGoogleSheets(spreadsheetId);
-  if (config == null) {
-    return;
+  if (_.get(config, "error")) {
+    // Set an error state for the form
+    const errorDisplay = document.querySelector(".spreadsheet-form-error");
+    if (errorDisplay) {
+      let message = "";
+      switch (config.error.code) {
+        case 403:
+          message =
+            'Recite extension does not have permission to read this spreadsheet. Please make the spreadsheet public by going to Settings > General Access and choose "Anyone with the link" for view permissions.';
+          break;
+        case 404:
+          message =
+            "This spreadsheet URL could not be found. Make sure that you have the correct URL and the file exists.";
+          break;
+      }
+      errorDisplay.innerHTML = message;
+      errorDisplay.style.display = "block";
+    }
+    return false;
+  } else if (config == null) {
+    return false;
   }
   await saveSpreadsheetConfig(config);
   setSpreadsheetConfigDisplay(config);
   setColumnConfig(config);
+  return true;
 };
 
 const refetchSpreadsheetData = async () => {
-  const config = await getSpreadsheetConfig();
+  try {
+    const config = await getSpreadsheetConfig();
+  } catch (e) {
+    // TODO
+  }
   if (_.get(config, "sheetsId", 0) === 0) {
     console.log("No google sheet to sync");
     return;
   }
   const { sheetsId } = config;
-  fetchAndSaveSpreadsheetData(sheetsId);
+  fetchAndSaveSpreadsheetData(sheetsId).then((success) => {
+    if (!success) {
+      displaySpreadsheetDetailSettings(false);
+    }
+  });
 };
 
 const handleSpreadsheetFormSubmit = () => {
   const urlInput = document.getElementById("source-url-input");
   const url = urlInput.value;
   const regex =
-    /https:\/\/docs.google.com\/spreadsheets\/d\/([^\s\/]*)\/[^\s]*/g;
+    /https:\/\/docs.google.com\/spreadsheets\/d\/([^\s\/]*)/g;
   const matches = regex.exec(url);
-  if (matches.length > 1) {
+  if (matches != null && matches.length > 1) {
+    const errorDisplay = document.querySelector(".spreadsheet-form-error");
+    if (errorDisplay.style.display !== "none") {
+      // Clear any existing errors
+      errorDisplay.style.display = "none";
+    }
     const spreadsheetId = matches[1];
     const spreadsheetURL =
       "https://docs.google.com/spreadsheets/d/" + spreadsheetId;
@@ -474,13 +521,22 @@ const handleSpreadsheetFormSubmit = () => {
         "sheets-data": { url: spreadsheetURL, id: spreadsheetId },
       },
       () => {
-        enableSpreadsheetInputForm(false);
+        displaySpreadsheetInputForm(false);
         setSpreadsheetTitleDisplay(null, spreadsheetURL);
-        fetchAndSaveSpreadsheetData(spreadsheetId);
+        fetchAndSaveSpreadsheetData(spreadsheetId).then((success) => {
+          if (success) {
+            displaySpreadsheetDetailSettings(true);
+          } else {
+            displaySpreadsheetDetailSettings(false);
+          }
+        });
       }
     );
   } else {
-    console.error("Error: invalid spreadsheet");
+    const errorDisplay = document.querySelector(".spreadsheet-input-error");
+    errorDisplay.innerHTML =
+      "You have entered an invalid link. Make sure that you have the correct Google spreadsheet URL and the file exists.";
+    errorDisplay.style.display = "block";
   }
 };
 
@@ -543,19 +599,24 @@ chrome.storage.sync.get(
     console.log(colors);
     if (!spreadsheetId) {
       // No saved sheet or configuration
-      enableSpreadsheetInputForm(true);
+      displaySpreadsheetInputForm(true);
     } else {
-      enableSpreadsheetInputForm(false);
+      displaySpreadsheetInputForm(false);
       const config = _.get(result, "sheets-config");
       const title = _.get(config, "title");
       setSpreadsheetTitleDisplay(title, spreadsheetURL);
 
       // If config does not exist, fetch the spreadsheet data
       if (!config) {
-        fetchAndSaveSpreadsheetData(spreadsheetId);
+        fetchAndSaveSpreadsheetData(spreadsheetId).then((success) => {
+          if (success) {
+            displaySpreadsheetDetailSettings(true);
+          }
+        });
       } else {
         setSpreadsheetConfigDisplay(config);
         setColumnConfig(config);
+        displaySpreadsheetDetailSettings(true);
       }
     }
 

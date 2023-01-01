@@ -7,12 +7,12 @@ const GET_HEADER = {
   contentType: "json",
 };
 
-export const getAuthToken = async () => {
+const getAuthToken = async () => {
   const result = await chrome.identity.getAuthToken({ interactive: true });
   return result.token;
 };
 
-export const fetchSpreadsheetData = async (spreadsheetId, token) => {
+const fetchSpreadsheetData = async (spreadsheetId, token) => {
   const init = {
     ...GET_HEADER,
     headers: {
@@ -26,9 +26,9 @@ export const fetchSpreadsheetData = async (spreadsheetId, token) => {
       init
     );
     return response;
-  } catch (e) {
-    console.log(e);
-    return null;
+  } catch (error) {
+    console.error(error);
+    return { error };
   }
 };
 
@@ -66,6 +66,11 @@ export const syncGoogleSheets = async (spreadsheetId) => {
   const token = await getAuthToken();
   try {
     const response = await fetchSpreadsheetData(spreadsheetId, token);
+    if (_.get(response, "status") !== 200) {
+      console.log("Received error when fetching spreadsheet data");
+      const data = await response.json();
+      return data;
+    }
     const data = await response.json();
     console.log("--- fetched spreadsheet data");
     console.log(data);
