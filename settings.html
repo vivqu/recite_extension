@@ -7,7 +7,7 @@
         color: #2b2b2b;
         padding-top: 50px;
         padding-left: 20px;
-        padding-right: 20px;
+        padding-right: 40px;
       }
       .title-icon {
         width: 40px;
@@ -18,32 +18,88 @@
         display: flex;
         align-items: center;
       }
+      .subtitle-container {
+        margin-left: 49px;
+      }
       h2 {
         font-size: 20px;
       }
       h3 {
         font-size: 18px;
       }
-      p {
+      p, a {
         font-size: 16px;
       }
+      button {
+        padding: 10px;
+        background-color: #4d82f5;
+        border-radius: 4px;
+        outline: none;
+        color: #fff;
+        border-width: 0px;
+        display: inline-block;
+        font-family: 'Source Sans Pro', sans-serif;
+        font-weight: 600;
+      }
+      button:disabled {
+        background-color: #b3b3b3;
+      }
+      hr {
+        border-top: 1px solid #c7c7c7;
+      }
+      input[type="url"].form-url {
+        border-radius: 4px;
+        border-width: 1px;
+        padding: 8px 10px;
+        min-width: 300px;
+        border-color: #b1b1b1;
+        border-style: solid;
+      }
+      ::placeholder {
+        color: #c7c7c7;
+      }
+      input[type="submit"].form-submit  {
+        background-color: #4d82f5;
+        color: #fff;
+        border-radius: 4px;
+        border: none;
+        box-shadow: none;
+        font-family: 'Source Sans Pro', sans-serif;
+        font-weight: 600;
+        padding: 10px;
+      }
+      input[type="submit"].form-submit:disabled {
+        background-color: #b3b3b3;
+      }
+      select {
+        margin-block-start: 8px;
+      }
       /* Color Settings */
+      .section-explainer {
+        margin-top: 36px;
+      }
       .color-settings {
         margin-top: 30px;
         margin-bottom: 20px;
         display: flex;
         flex-direction: row;
       }
+      .color-settings-selector {
+        min-width: 370px;
+        max-width: 630px;
+        width: 50vw;
+        margin-right: 16px;
+      }
       /* Example Quote */
       .color-settings-example {
-      	margin: auto;
+      	/* margin: auto; */
         background-color: #fff;
         padding: 20px;
         border-radius: 12px;
       }
       .quote-example-container {
         position: relative;
-        max-width: 500px;
+        width: 500px;
       }
       .quote-example-text {
         border-radius: 12px;
@@ -123,31 +179,58 @@
       .source-settings {
         margin-top: 30px;
       }
-      /* Spreadsheet Sync Settings */
-      .spreadsheet-sync-settings {
+      .enter-spreadsheet-section {
+        margin-top: 24px;
         display: none;
       }
-
-      /* TODO: organize */
-      button {
-        padding: 10px;
-        background-color: #3C79F8;
-        border-radius: 4px;
-        outline: none;
-        color: #fff;
-        border-width: 0px;
-        display: inline-block;
+      .saved-spreadsheet-section {
+        margin-top: 24px;
+        display: none;
       }
-      button:disabled {
-        background-color: #b3b3b3;
+      .spreadsheet-settings-action {
+        margin-top: 8px;
       }
-      .settings-row {
+      .settings-explainer {
+        color: #8d8d8d;
+        font-size: 16px;
+        margin-bottom: 1.2em;
+      }
+      /* Spreadsheet Sync Settings */
+      .spreadsheet-sync-settings {
+        margin-top: 20px;
+        display: none;
+      }
+      .spreadsheet-settings-column {
         display: flex;
-        flex-direction: row;
       }
-      .settings-row-title {
-        margin-right: 8px;
-      }  
+      .spreadsheet-settings-title {
+        margin-right: 24px;
+        width: 100px;
+        min-width: 100px;
+      }
+      .spreadsheet-settings-content {
+        width: 540px;
+        min-width: 400px;
+      }
+      .spreadsheet-detail-header {
+        font-weight: 600;
+      }
+      .spreadsheet-settings-detail-row {
+        margin-bottom: 20px;
+      }
+      .spreadsheet-settings-detail-row > p {
+        margin-block-start: 0em;
+        margin-block-end: 0.5em;
+      }
+      /* Spreadsheet Column Settings */
+      .spreadsheet-column-settings {
+        margin-top: 20px;
+        display: none;
+      }
+      .spreadsheet-column-error {
+        display: none;
+        color: #ff5e5e;
+      }       
     </style>
     <script type="module" src="lodash.js"></script>
     <script type="module" src="settings.js"></script>
@@ -157,11 +240,14 @@
       <img class="title-icon" src="images/recite-128.png" />
       <h1>Recite</h1>
     </div>
-    <p>Remember all your saved quotes and highlights.</p>
+    <div class="subtitle-container">
+      <p>Remember all your saved quotes and highlights.</p>
+    </div>
     <div class="color-settings">
       <div class="color-settings-selector">
-        <h3>Display</h3>
-        <p>Select the color scheme for new tabs.</p>
+        <h3>Tab Display</h3>
+        <hr />
+        <p class="section-explainer">Select the color scheme for new tabs.</p>
         <div class="color-settings-button-container">
           <button class="color-button gray" id="color-gray"></button>
           <button class="color-button blue" id="color-blue"></button>
@@ -170,7 +256,7 @@
           <button class="color-button peach" id="color-peach"></button>
         </div>
         <div class="color-settings-test-spreadsheet">
-          <p>Test the display with a quote from your spreadsheet.</p>
+          <p>Test with a quote from your spreadsheet.</p>
         <button class="test-quote">Load sample quote</button>
       </div>
       </div>
@@ -187,36 +273,84 @@
     </div>
   </div>
     <div class="source-settings">
-      <h3>Source</h3>
-      <div class="enter-spreadsheet-section" style="display: none">
-        <p>Enter a Google spreadsheet link to start displaying your saved quotes.</p>
-        <p>You can use this template to get started: <a href="https://docs.google.com/spreadsheets/d/1TsE9HSxYSaYHVrgprOMYRpm6N5E96F8bejeff_t9nqc/edit#gid=0">Recite Extension - TEMPLATE</a></a></p>
-        <form id="spreadsheet-form">
-          <input id="source-url-input" type="url" style="border-radius: 4px; border-width: 1px; padding: 8px 10px; min-width: 300px;" placeholder="https://docs.google.com/spreadsheets/d/..."></input>
-          <input id="source-save" type="submit" style="margin-left: 4px;" value="Submit" disabled></input>
-        </form>
-      </div>
-      <div class="saved-spreadsheet-section" style="display: none">
-        <div>
-        <p>Quotes will be fetched from the following spreadsheet:</p>
-        <a id="spreadsheet-link"></a>
-        <button class="clear-source">Clear</button>
-      </div>
-      <div class="spreadsheet-column-settings" style="margin-top: 16px; display: none;">
-        <div class="settings-row">
-          <p>Configure columns to display:</p>
-          <button class="edit-columns">Edit</button>
-          <button class="save-columns" style="display: none;">Save</button>
+      <h3>Quote Settings</h3>
+      <hr />
+      <div class="enter-spreadsheet-section">
+        <div class="spreadsheet-settings-column">
+          <div class="spreadsheet-settings-title"><p><b>Spreadsheet</b></p></div>
+          <div class="spreadsheet-settings-content">
+            <p class="settings-explainer">Add a Google spreadsheet link to start displaying your saved quotes. Use this template to get started: <a href="https://docs.google.com/spreadsheets/d/1TsE9HSxYSaYHVrgprOMYRpm6N5E96F8bejeff_t9nqc/edit#gid=0">Recite Extension - TEMPLATE</a></p>
+            <form id="spreadsheet-form">
+              <input class="form-url" id="source-url-input" type="url" placeholder="https://docs.google.com/spreadsheets/d/..."></input>
+              <input class="form-submit" id="source-save" type="submit" style="margin-left: 4px;" value="Submit" disabled></input>
+            </form>
+          </div>
         </div>
-        <div id="column-settings"></div>
-        <div id="column-settings-error" style="display: none; color: #ff5e5e"><p>Please correct the following errors</p></div>
       </div>
+      <div class="saved-spreadsheet-section" >
+        <div class="spreadsheet-settings-column">
+          <div class="spreadsheet-settings-title"><p><b>Spreadsheet</b></p></div>
+          <div class="spreadsheet-settings-content">
+            <p class="settings-explainer">Quotes will be loaded from this spreadsheet. Click the clear button to remove this spreadsheet as the source for quotes.</p>
+            <a id="spreadsheet-link"></a>
+          </div>  
+          <div class="spreadsheet-settings-action">
+            <button class="clear-source">Clear</button>
+          </div>      
+        </div>
       </div>
-    </div>
-    <div class="spreadsheet-sync-settings">
-      <button style="margin-top: 15px;" class="sync-button">Sync with Google Sheets</button>
-      <div class="sheet-config"></div>
+      <div class="spreadsheet-sync-settings">
+        <div class="spreadsheet-settings-column">
+          <div class="spreadsheet-settings-title"><p><b>Details</b></p></div>
+          <div class="spreadsheet-settings-content">
+            <p class="settings-explainer">Sync to pull in any new rows or columns that have been added to the spreadsheet.</p>
+            <div class="spreadsheet-settings-detail-row">
+              <p><b>Sheet title</b></p>
+              <p id="spreadsheet-detail-title"><p>None</p></p>
+            </div>
+            <div class="spreadsheet-settings-detail-row">
+              <p><b>Number of rows</b></p>
+              <p id="spreadsheet-detail-rows"><p>None</p></p>
+            </div>
+            <div class="spreadsheet-settings-detail-row">
+              <p><b>Number of columns</b></p>
+              <p id="spreadsheet-detail-columns"><p>None</p></p>
+            </div>
+          </div> 
+          <div class="spreadsheet-settings-action">
+            <button class="sync-button">Sync</button>
+          </div>
+        </div>
+      </div>
+      <div class="spreadsheet-column-settings">
+        <div class="spreadsheet-settings-column">
+          <div class="spreadsheet-settings-title"><p><b>Columns</b></p></div>
+          <div class="spreadsheet-settings-content">
+            <p class="settings-explainer">Change columns to configure how the quote is displayed.</p>
+            <div class="spreadsheet-settings-detail-row">
+              <p><b>Quote</b></p>
+              <div id="spreadsheet-column-quote"><p>None</p></div>
+            </div>
+            <div class="spreadsheet-settings-detail-row">
+              <p><b>Author</b></p>
+              <div id="spreadsheet-column-author"><p>None</p></div>
+            </div>
+            <div class="spreadsheet-settings-detail-row">
+              <p><b>Source</b></p>
+              <div id="spreadsheet-column-source"><p>None</p></div>
+            </div>
+            <div class="spreadsheet-settings-detail-row">
+              <p><b>Link</b></p>
+              <div id="spreadsheet-column-link"><p>None</p></div>
+            </div>
+            <div id="spreadsheet-column-error"><p>Please correct the following errors</p></div>
+          </div>
+          <div class="spreadsheet-settings-action">
+            <button class="edit-columns">Edit</button>
+            <button class="save-columns" style="display: none;">Save</button>
+          </div>
+        </div>
+      </div>
     </div>
   </body>
-  
 </html>

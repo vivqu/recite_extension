@@ -29,7 +29,22 @@ const loadExampleQuote = async () => {
 const clearSource = () => {
   chrome.storage.sync.remove(["sheets-data", "sheets-config"], () => {
     enableSpreadsheetInputForm(true);
-    document.querySelector(".sheet-config").innerHTML = "";
+    // Also clears any existing data for the detail and columns sections
+    const selectorIds = [
+      "spreadsheet-detail-title",
+      "spreadsheet-detail-rows",
+      "spreadsheet-detail-columns",
+      "spreadsheet-column-quote",
+      "spreadsheet-column-author",
+      "spreadsheet-column-source",
+      "spreadsheet-column-link",
+    ];
+    for (const selectorId of selectorIds) {
+      const display = document.getElementById(selectorId);
+      display.innerHTML = "<p>None</p>";
+    }
+    const errorDisplay = document.getElementById("spreadsheet-column-error");
+    errorDisplay.style.display = "none";
   });
 };
 
@@ -134,11 +149,10 @@ const setColumnConfig = async (config) => {
   );
   settingsContainer.style.display = "block";
 
-  const errorContainer = document.getElementById("column-settings-error");
+  const errorContainer = document.getElementById("spreadsheet-column-error");
   errorContainer.style.display = "none";
 
   const settingsBlock = document.getElementById("column-settings");
-  let configDisplay = "";
   if (columnFormat.quote != null) {
     let columnTitle;
     const quoteIndex = columnFormat.quote;
@@ -148,54 +162,59 @@ const setColumnConfig = async (config) => {
     if (headers.length > quoteIndex) {
       columnTitle = headers[quoteIndex];
     }
-    configDisplay += `<div id="quote-column" class="settings-row"><p>Quote: Column ${
-      quoteIndex + 1
-    }${columnTitle ? ` ("${columnTitle}")` : ""}</p></div>`;
+    const quoteDisplay = document.getElementById("spreadsheet-column-quote");
+    if (quoteDisplay) {
+      quoteDisplay.innerHTML = `<p>Column ${quoteIndex + 1}${
+        columnTitle ? ` ("${columnTitle}")` : ""
+      }</p>`;
+    }
   }
   if (columnFormat.author != null) {
     let columnTitle;
     const authorIndex = columnFormat.author;
+    const authorDisplay = document.getElementById("spreadsheet-column-author");
     if (authorIndex == DO_NOT_DISPLAY_OPTION) {
-      configDisplay += `<div id="author-column" class="settings-row"><p>Author: Do not show</p></div>`;
+      authorDisplay.innerHTML = "<p>Do not show</p>";
     } else {
       if (headers.length > authorIndex) {
         columnTitle = headers[authorIndex];
       }
-      configDisplay += `<div id="author-column" class="settings-row"><p>Author: Column ${
-        authorIndex + 1
-      }${columnTitle ? ` ("${columnTitle}")` : ""}</p></div>`;
+      authorDisplay.innerHTML = `<p>Column ${authorIndex + 1}${
+        columnTitle ? ` ("${columnTitle}")` : ""
+      }</p>`;
     }
   }
   if (columnFormat.source != null) {
     let columnTitle;
     const sourceIndex = columnFormat.source;
+    const sourceDisplay = document.getElementById("spreadsheet-column-source");
     if (sourceIndex == DO_NOT_DISPLAY_OPTION) {
-      configDisplay += `<div id="source-column" class="settings-row"><p>Source: Do not show</p></div>`;
+      sourceDisplay.innerHTML = "<p>Do not show</p>";
     } else {
       if (headers.length > sourceIndex) {
         columnTitle = headers[sourceIndex];
       }
-      configDisplay += `<div id="source-column" class="settings-row"><p>Source: Column ${
-        sourceIndex + 1
-      }${columnTitle ? ` ("${columnTitle}")` : ""}</p></div>`;
+      sourceDisplay.innerHTML = `<p>Column ${sourceIndex + 1}${
+        columnTitle ? ` ("${columnTitle}")` : ""
+      }</p>`;
     }
   }
 
   if (columnFormat.link != null) {
     let columnTitle;
     const linkIndex = columnFormat.link;
+    const linkDisplay = document.getElementById("spreadsheet-column-link");
     if (linkIndex == DO_NOT_DISPLAY_OPTION) {
-      configDisplay += `<div id="link-column" class="settings-row"><p>Link: Do not show</p></div>`;
+      linkDisplay.innerHTML = "<p>Do not show</p>";
     } else {
       if (headers.length > linkIndex) {
         columnTitle = headers[linkIndex];
       }
-      configDisplay += `<div id="source-column" class="settings-row"><p>Link: Column ${
-        linkIndex + 1
-      }${columnTitle ? ` ("${columnTitle}")` : ""}</p></div>`;
+      linkDisplay.innerHTML = `<p>Column ${linkIndex + 1}${
+        columnTitle ? ` ("${columnTitle}")` : ""
+      }</p>`;
     }
   }
-  settingsBlock.innerHTML = configDisplay;
 };
 
 const saveColumnConfig = async () => {
@@ -325,58 +344,48 @@ const editColumnConfig = async () => {
   };
 
   const quoteOptions = createOptions(quote);
-  let configDisplay = `<div class="settings-row">
-  <div class="settings-row-title"><p>Quote</p></div>
-  <select name="quote-column" id="quote-column">
+  const quoteDisplay = document.getElementById("spreadsheet-column-quote");
+  quoteDisplay.innerHTML = `<select name="quote-column" id="quote-column">
       ${
         quote == null
           ? `<option value="none" selected disabled hidden>Select a column</option>`
           : null
       }
      ${quoteOptions}
-  </select>
-</div>`;
+  </select>`;
 
   const authorOptions = createOptions(author, true);
-  configDisplay += `<div class="settings-row">
-<div class="settings-row-title"><p>Author</p></div>
-<select name="author-column" id="author-column">
+  const authorDisplay = document.getElementById("spreadsheet-column-author");
+  authorDisplay.innerHTML = `<select name="author-column" id="author-column">
     ${
       author == null
         ? `<option value="none" selected disabled hidden>Select a column</option>`
         : null
     }
   ${authorOptions}
-</select>
-</div>`;
+</select>`;
 
   const sourceOptions = createOptions(source, true);
-  configDisplay += `<div class="settings-row">
-<div class="settings-row-title"><p>Source</p></div>
-<select name="source-column" id="source-column">
+  const sourceDisplay = document.getElementById("spreadsheet-column-source");
+  sourceDisplay.innerHTML = `<select name="source-column" id="source-column">
     ${
       source == null
         ? `<option value="none" selected disabled hidden>Select a column</option>`
         : null
     }
     ${sourceOptions}
-</select>
-</div>`;
+</select>`;
 
   const linkOptions = createOptions(link, true);
-  configDisplay += `<div class="settings-row">
-<div class="settings-row-title"><p>Link</p></div>
-<select name="link-column" id="link-column">
+  const linkDisplay = document.getElementById("spreadsheet-column-link");
+  linkDisplay.innerHTML = `<select name="link-column" id="link-column">
   ${
     link == null
       ? `<option value="none" selected disabled hidden>Select a column</option>`
       : null
   }
   ${linkOptions}
-</select>
-</div>`;
-
-  settingsBlock.innerHTML = configDisplay;
+</select>`;
 };
 
 const enableSpreadsheetInputForm = (enable) => {
@@ -393,6 +402,9 @@ const enableSpreadsheetInputForm = (enable) => {
 
   const syncSection = document.querySelector(".spreadsheet-sync-settings");
   syncSection.style.display = enable ? "none" : "block";
+
+  const columnSection = document.querySelector(".spreadsheet-column-settings");
+  columnSection.style.display = enable ? "none" : "block";
 };
 
 const setSpreadsheetTitleDisplay = (title, url) => {
@@ -416,13 +428,15 @@ const setSpreadsheetConfigDisplay = (config) => {
   // Display info about the sheets if it has been fetched.
   const rowCount = _.get(config, "row-count", 0);
   const columnCount = _.get(config, "column-count", 0);
-  let configDisplayHTML = "";
   if (_.get(config, "sheet-title")) {
-    configDisplayHTML += `<p>Sheet title: ${config["sheet-title"]}</p>`;
+    const titleDetail = document.getElementById("spreadsheet-detail-title");
+    titleDetail.innerHTML = config["sheet-title"];
   }
-  configDisplayHTML += `<p>Number of rows: ${rowCount}</p>`;
-  configDisplayHTML += `<p>Number of columns: ${columnCount}</p>`;
-  document.querySelector(".sheet-config").innerHTML = configDisplayHTML;
+  const rowDetail = document.getElementById("spreadsheet-detail-rows");
+  rowDetail.innerHTML = rowCount;
+
+  const columnDetail = document.getElementById("spreadsheet-detail-columns");
+  columnDetail.innerHTML = columnCount;
 };
 
 const fetchAndSaveSpreadsheetData = async (spreadsheetId) => {
