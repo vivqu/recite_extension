@@ -25,7 +25,7 @@ const loadExampleQuote = async () => {
 
 const clearSource = () => {
   chrome.storage.sync.remove(["sheets-data", "sheets-config"], () => {
-    enableSpreadsheetForm(true);
+    enableSpreadsheetSettings(true);
     document.querySelector(".sheet-config").innerHTML = "";
   });
 };
@@ -81,14 +81,20 @@ const setColorConfig = (colors) => {
   const { text, icon, background, quote } = colors;
   const attrColor = _.get(colors, "attrText") || text;
 
-  const container = _.first(document.getElementsByClassName("color-settings-example"));
+  const container = _.first(
+    document.getElementsByClassName("color-settings-example")
+  );
   container.style["background-color"] = background;
 
-  const quoteText = _.first(document.getElementsByClassName("quote-example-text"));
+  const quoteText = _.first(
+    document.getElementsByClassName("quote-example-text")
+  );
   quoteText.style.color = text;
   quoteText.style["background-color"] = quote;
 
-  const attrText = _.first(document.getElementsByClassName("quote-example-attr-text"));
+  const attrText = _.first(
+    document.getElementsByClassName("quote-example-attr-text")
+  );
   attrText.style.color = attrColor;
 
   const quoteIcons = document.getElementsByClassName("quote-example-icon");
@@ -370,12 +376,15 @@ const editColumnConfig = async () => {
   settingsBlock.innerHTML = configDisplay;
 };
 
-const enableSpreadsheetForm = (enable) => {
+const enableSpreadsheetSettings = (enable) => {
   const formSection = document.querySelector(".enter-spreadsheet-section");
   formSection.style.display = enable ? "block" : "none";
 
   const infoSection = document.querySelector(".saved-spreadsheet-section");
   infoSection.style.display = enable ? "none" : "block";
+
+  const syncSection = document.querySelector(".spreadsheet-sync-settings");
+  syncSection.style.display = enable ? "none" : "block;";
 };
 
 const setSpreadsheetTitleDisplay = (title, url) => {
@@ -443,7 +452,7 @@ const handleSpreadsheetFormSubmit = () => {
         "sheets-data": { url: spreadsheetURL, id: spreadsheetId },
       },
       () => {
-        enableSpreadsheetForm(false);
+        enableSpreadsheetSettings(false);
         setSpreadsheetTitleDisplay(null, spreadsheetURL);
         fetchAndSaveSpreadsheetData(spreadsheetId);
       }
@@ -512,9 +521,9 @@ chrome.storage.sync.get(
     console.log(colors);
     if (!spreadsheetId) {
       // No saved sheet or configuration
-      enableSpreadsheetForm(true);
+      enableSpreadsheetSettings(true);
     } else {
-      enableSpreadsheetForm(false);
+      enableSpreadsheetSettings(false);
       const config = _.get(result, "sheets-config");
       const title = _.get(config, "title");
       setSpreadsheetTitleDisplay(title, spreadsheetURL);
