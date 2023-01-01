@@ -76,6 +76,25 @@ const setColorConfig = (colors) => {
     selectedButton.style["margin-left"] = "0px";
     selectedButton.style["margin-right"] = "0px";
   }
+
+  // Update the colors for the example quote
+  const { text, icon, background, quote } = colors;
+  const attrColor = _.get(colors, "attrText") || text;
+
+  const container = _.first(document.getElementsByClassName("color-settings-example"));
+  container.style["background-color"] = background;
+
+  const quoteText = _.first(document.getElementsByClassName("quote-example-text"));
+  quoteText.style.color = text;
+  quoteText.style["background-color"] = quote;
+
+  const attrText = _.first(document.getElementsByClassName("quote-example-attr-text"));
+  attrText.style.color = attrColor;
+
+  const quoteIcons = document.getElementsByClassName("quote-example-icon");
+  for (const quoteIcon of quoteIcons) {
+    quoteIcon.style.color = icon;
+  }
 };
 
 const updateColorConfig = ({ srcElement }) => {

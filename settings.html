@@ -3,32 +3,96 @@
     <title>Recite</title>
     <style>
       body {
+        font-family: 'Source Sans Pro', sans-serif;
+        color: #2b2b2b;
+        padding-top: 50px;
         padding-left: 20px;
         padding-right: 20px;
       }
-      button {
-        padding: 10px;
-        background-color: #3C79F8;
-        border-radius: 4px;
-        outline: none;
-        color: #fff;
-        border-width: 0px;
-        display: inline-block;
+      .title-icon {
+        width: 40px;
+        height: 40px;
+        margin-right: 8px;
       }
-      button:disabled {
-        background-color: #b3b3b3;
+      .title-container {
+        display: flex;
+        align-items: center;
       }
-      .example-quote {
-        margin-top: 15px;
+      h2 {
+        font-size: 20px;
       }
-      .settings-row {
+      h3 {
+        font-size: 18px;
+      }
+      p {
+        font-size: 16px;
+      }
+      /* Color Settings */
+      .color-settings {
+        margin-top: 30px;
+        margin-bottom: 20px;
         display: flex;
         flex-direction: row;
       }
-      .settings-row-title {
-        margin-right: 8px;
+      /* Example Quote */
+      .color-settings-example {
+      	margin: auto;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 12px;
       }
-      
+      .quote-example-container {
+        position: relative;
+        max-width: 500px;
+      }
+      .quote-example-text {
+        border-radius: 12px;
+        text-align: center;
+        font-family: 'Ibarra Real Nova', serif;
+        color: #000;
+        padding: 40px;
+        
+        line-height: 28px;
+        background-color: #f7f7f7;
+      }
+      .quote-example-text > p {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 3; /* number of lines to show */
+        line-clamp: 3; 
+        -webkit-box-orient: vertical;
+        font-size: 18px;
+      }
+      .quote-example-icon {
+        position: absolute;
+        color: #808080;
+        font-size: 70px;
+        opacity: 20%;
+        font-family: 'Ibarra Real Nova', serif;
+        -webkit-user-select: none; /* Safari */        
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* IE10+/Edge */
+        user-select: none; /* Standard */
+      }
+      .quote-left {
+        top: 0px;
+        left: 12px;
+      }
+      .quote-right {
+        right: 12px;
+        bottom: 8px;
+      }
+      .quote-example-attr-text {
+        font-family: 'Source Sans Pro', sans-serif;
+        color: #000;
+        font-size: 16px;
+        font-weight: 300;
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+      }
+      /* Color Selector Buttons */
       .color-button {
         border-radius: 16px;
         margin-left: 4px;
@@ -52,14 +116,69 @@
       .color-button.peach {
         background-color: #ffbbaf;
       }
+      /* Source Settings */
+      .source-settings {
+        margin-top: 30px;
+      }
+
+      /* TODO: organize */
+      button {
+        padding: 10px;
+        background-color: #3C79F8;
+        border-radius: 4px;
+        outline: none;
+        color: #fff;
+        border-width: 0px;
+        display: inline-block;
+      }
+      button:disabled {
+        background-color: #b3b3b3;
+      }
+      .example-quote {
+        margin-top: 15px;
+      }
+      .settings-row {
+        display: flex;
+        flex-direction: row;
+      }
+      .settings-row-title {
+        margin-right: 8px;
+      }  
     </style>
     <script type="module" src="lodash.js"></script>
     <script type="module" src="settings.js"></script>
   </head>
   <body>
-    <h1>Recite</h1>
-    <h2>Reminding you of your saved quotes</h2>
-    <div style="margin-top: 30px">
+    <div class="title-container">
+      <img class="title-icon" src="images/recite-128.png" />
+      <h1>Recite</h1>
+    </div>
+    <p>Remember all your saved quotes and highlights.</p>
+    <div class="color-settings">
+      <div class="color-settings-selector">
+        <h3>Display</h3>
+        <p>Select the color scheme for new tabs.</p>
+        <div class="color-settings-button-container">
+          <button class="color-button gray" id="color-gray"></button>
+          <button class="color-button blue" id="color-blue"></button>
+          <button class="color-button purple" id="color-purple"></button>
+          <button class="color-button green" id="color-green"></button>
+          <button class="color-button peach" id="color-peach"></button>
+        </div>
+      </div>
+      <div class="color-settings-example">
+        <div class="quote-example-container">
+          <div class="quote-example-text">
+            <p>This is an example quote showing the new tab colors. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+          </div>
+          <div class="quote-example-icon quote-left"><span>&#8220;</span></div>
+          <div class="quote-example-icon quote-right"><span>&#8221;</span></div>
+          <div class="quote-example-attr-text">&#8212; Author, <i>Source</i></div>
+        </div> 
+      </div>
+    </div>
+  </div>
+    <div class="source-settings">
       <h3>Source</h3>
       <div class="enter-spreadsheet-section" style="display: none">
         <p>Choose a Google spreadsheet link to start displaying your saved quotes.</p>
@@ -90,15 +209,7 @@
     <div class="sheet-config"></div>
     <button class="test-quote">Get a quote</button>
     <div class="example-quote"><i>Load a quote from your google sheets page here.</i></div>
-    <div style="margin-top: 30px"></div>
-    <p>Select display color</p>
-    <div class="color-settings-container">
-      <button class="color-button gray" id="color-gray"></button>
-      <button class="color-button blue" id="color-blue"></button>
-      <button class="color-button purple" id="color-purple"></button>
-      <button class="color-button green" id="color-green"></button>
-      <button class="color-button peach" id="color-peach"></button>
-    </div>
+    
   </body>
   
 </html>
