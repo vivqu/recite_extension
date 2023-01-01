@@ -199,6 +199,15 @@
         display: none;
         color: #ff5e5e;
       }
+      .spreadsheet-link-container {
+        display: flex;
+        align-items: center;
+      }
+      .spreadsheet-link-icon {
+        width: 15px;
+        height: 20px;
+        margin-right: 8px;
+      }
       /* Spreadsheet Sync Settings */
       .spreadsheet-sync-settings {
         margin-top: 20px;
@@ -298,7 +307,10 @@
           <div class="spreadsheet-settings-content">
             <p class="settings-explainer">Quotes will be loaded from this spreadsheet. Click the clear button to remove this spreadsheet as the source for quotes.</p>
             <p class="spreadsheet-form-error"></p>
-            <a id="spreadsheet-link"></a>
+            <div class="spreadsheet-link-container">
+              <img class="spreadsheet-link-icon" src="images/google-sheets-icon.png" />
+              <a id="spreadsheet-link"></a>
+            </div>
           </div>  
           <div class="spreadsheet-settings-action">
             <button class="clear-source">Clear</button>
@@ -312,15 +324,15 @@
             <p class="settings-explainer">Sync to pull in any new rows or columns that have been added to the spreadsheet.</p>
             <div class="spreadsheet-settings-detail-row">
               <p><b>Sheet title</b></p>
-              <p id="spreadsheet-detail-title"><p>None</p></p>
+              <p id="spreadsheet-detail-title">None</p>
             </div>
             <div class="spreadsheet-settings-detail-row">
               <p><b>Number of rows</b></p>
-              <p id="spreadsheet-detail-rows"><p>None</p></p>
+              <p id="spreadsheet-detail-rows">None</p>
             </div>
             <div class="spreadsheet-settings-detail-row">
               <p><b>Number of columns</b></p>
-              <p id="spreadsheet-detail-columns"><p>None</p></p>
+              <p id="spreadsheet-detail-columns">None</p>
             </div>
           </div> 
           <div class="spreadsheet-settings-action">
