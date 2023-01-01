@@ -3,6 +3,11 @@ import { DEFAULT_COLOR_OPTIONS } from "./colors.js";
 
 const DEFAULT_QUOTES = [
   {
+    text: "So many things are possible just as long as you don't know they're impossible",
+    author: "Norton Juster",
+    source: "The Phantom Tollbooth",
+  },
+  {
     text: "All truly wise thoughts have been thought already thousands of times; but to make them truly ours, we must think them over again honestly, till they take root in our personal experience.",
     author: "Johann Wolfgang von Goethe",
   },
@@ -91,19 +96,32 @@ const loadColors = async () => {
   });
 };
 
+const loadDefaultQuote = () => {
+  const index = _.random(0, DEFAULT_QUOTES.length - 1);
+  const { text, author, source } = DEFAULT_QUOTES[index];
+  let attribution = `\u2014 ${author}`;
+  if (source) {
+    attribution += `, ${source}`;
+  }
+  const formattedQuote = { quote: text, attribution };
+  renderQuote(formattedQuote);
+};
+
 const loadQuote = async () => {
   try {
     const data = await getQuote();
     const formattedQuote = await formatQuote(data);
+    if (formattedQuote == null) {
+      console.error("Empty quote fetched");
+      loadDefaultQuote();
+      return;
+    }
     renderQuote(formattedQuote);
   } catch (e) {
     // Render default set of quotes if no saved configuration
     // is available.
     console.log(e);
-    const index = _.random(0, DEFAULT_QUOTES.length - 1);
-    const { text, author } = DEFAULT_QUOTES[index];
-    const formattedQuote = { quote: text, attribution: `\u2014 ${author}` };
-    renderQuote(formattedQuote);
+    loadDefaultQuote();
   }
 };
 

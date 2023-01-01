@@ -88,9 +88,8 @@
         color: #000;
         font-size: 16px;
         font-weight: 300;
-        margin-top: 20px;
-        display: flex;
-        justify-content: center;
+        margin: 20px auto;
+        text-align: center;
       }
       /* Color Selector Buttons */
       .color-button {
@@ -116,6 +115,10 @@
       .color-button.peach {
         background-color: #ffbbaf;
       }
+      .color-settings-test-spreadsheet {
+        margin-top: 30px;
+        display: none;
+      }
       /* Source Settings */
       .source-settings {
         margin-top: 30px;
@@ -137,9 +140,6 @@
       }
       button:disabled {
         background-color: #b3b3b3;
-      }
-      .example-quote {
-        margin-top: 15px;
       }
       .settings-row {
         display: flex;
@@ -169,6 +169,10 @@
           <button class="color-button green" id="color-green"></button>
           <button class="color-button peach" id="color-peach"></button>
         </div>
+        <div class="color-settings-test-spreadsheet">
+          <p>Test the display with a quote from your spreadsheet.</p>
+        <button class="test-quote">Load sample quote</button>
+      </div>
       </div>
       <div class="color-settings-example">
         <div class="quote-example-container">
@@ -185,7 +189,8 @@
     <div class="source-settings">
       <h3>Source</h3>
       <div class="enter-spreadsheet-section" style="display: none">
-        <p>Choose a Google spreadsheet link to start displaying your saved quotes.</p>
+        <p>Enter a Google spreadsheet link to start displaying your saved quotes.</p>
+        <p>You can use this template to get started: <a href="https://docs.google.com/spreadsheets/d/1TsE9HSxYSaYHVrgprOMYRpm6N5E96F8bejeff_t9nqc/edit#gid=0">Recite Extension - TEMPLATE</a></a></p>
         <form id="spreadsheet-form">
           <input id="source-url-input" type="url" style="border-radius: 4px; border-width: 1px; padding: 8px 10px; min-width: 300px;" placeholder="https://docs.google.com/spreadsheets/d/..."></input>
           <input id="source-save" type="submit" style="margin-left: 4px;" value="Submit" disabled></input>
@@ -211,8 +216,6 @@
     <div class="spreadsheet-sync-settings">
       <button style="margin-top: 15px;" class="sync-button">Sync with Google Sheets</button>
       <div class="sheet-config"></div>
-      <button class="test-quote">Get a quote</button>
-      <div class="example-quote"><i>Load a quote from your google sheets page here.</i></div>
     </div>
   </body>
   

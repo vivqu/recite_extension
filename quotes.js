@@ -96,6 +96,9 @@ const formatQuote = async (data) => {
   const sourceIndex = indexes.source;
   const linkIndex = indexes.link;
   const { values } = data;
+  if (_.isEmpty(values)) {
+    return null;
+  }
   const quoteContext = values[0];
   if (quoteContext.length === 0) {
     return null;
