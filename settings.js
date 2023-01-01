@@ -459,7 +459,7 @@ const fetchAndSaveSpreadsheetData = async (spreadsheetId) => {
     // Set an error state for the form
     const errorDisplay = document.querySelector(".spreadsheet-form-error");
     if (errorDisplay) {
-      let message = "";
+      let message = "Oops! Something went wrong. We could not load this spreadsheet, please try a different spreadsheet URL.";
       switch (config.error.code) {
         case 403:
           message =
