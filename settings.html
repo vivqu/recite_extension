@@ -58,8 +58,12 @@
       ::placeholder {
         color: #c7c7c7;
       }
-      input[type="submit"].form-submit  {
-        background-color: #4d82f5;
+      input.form-submit  {
+        background-image: url(/images/btn_google_signin_light_normal_web@2x.png);
+        /* background-color: #4d82f5; */
+        background-repeat: no-repeat;
+        background-size: 150px;
+        width: 150px;
         color: #fff;
         border-radius: 4px;
         border: none;
@@ -67,9 +71,13 @@
         font-family: 'Source Sans Pro', sans-serif;
         font-weight: 600;
         padding: 10px;
+        margin-left: 4px;
       }
-      input[type="submit"].form-submit:disabled {
-        background-color: #b3b3b3;
+      input.form-submit:disabled {
+        background-image: url(/images/btn_google_signin_light_disabled_web@2x.png);
+      }
+      input.form-submit:hover:active {
+        background-image: url(/images/btn_google_signin_light_focus_web@2x.png);
       }
       select {
         margin-block-start: 8px;
@@ -195,6 +203,10 @@
         font-size: 16px;
         margin-bottom: 1.2em;
       }
+      #spreadsheet-form {
+        display: flex;
+        align-items: center;
+      }
       .spreadsheet-input-error, .spreadsheet-form-error {
         display: none;
         color: #ff5e5e;
@@ -313,7 +325,7 @@
             <p class="spreadsheet-input-error"></p>
             <form id="spreadsheet-form">
               <input class="form-url" id="source-url-input" type="url" placeholder="https://docs.google.com/spreadsheets/d/..."></input>
-              <input class="form-submit" id="source-save" type="submit" style="margin-left: 4px;" value="Submit" disabled></input>
+              <input class="form-submit" id="signin-submit" type="submit" value="" disabled></input>
             </form>
           </div>
         </div>

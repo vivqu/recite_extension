@@ -547,7 +547,7 @@ window.onload = function () {
   const urlInput = document.getElementById("source-url-input");
   if (urlInput) {
     urlInput.addEventListener("input", () => {
-      const submitButton = document.getElementById("source-save");
+      const submitButton = document.getElementById("signin-submit");
       submitButton.disabled = urlInput.value.length == 0;
     });
   }
